@@ -11,7 +11,7 @@ import io
 convert_router = Router()
 
 # Храним временно загруженные картинки в памяти (в реальном проекте лучше БД/FS)
-user_photos: dict[int, list[PILImage.Image]] = {}
+user_photos: dict[int, list[tuple[int, PILImage.Image]]] = {}
 
 
 @convert_router.message(lambda msg: msg.document is not None)
@@ -30,7 +30,7 @@ async def convert(message: Message, bot: Bot) -> None:
     user_id = message.from_user.id
     if user_id not in user_photos:
         user_photos[user_id] = []
-    user_photos[user_id].append(image)
+    user_photos[user_id].append((message.message_id, image))
 
     await message.answer(
         text=(
@@ -50,7 +50,7 @@ async def make_pdf(message: Message, bot: Bot) -> None:
         await message.answer("ты мне еще ни одной фотки не скинул")
         return
 
-    images = user_photos[user_id]
+    images = [img for _, img in sorted(user_photos[user_id], key=lambda x: x[0])]
 
     # Генерация PDF
     pdf_buffer = io.BytesIO()
