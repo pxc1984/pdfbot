@@ -19,7 +19,6 @@ async def main() -> None:
 
     dp.include_routers(
         handlers.start_router,
-        handlers.help_router,
         handlers.convert_router,
     )
 
