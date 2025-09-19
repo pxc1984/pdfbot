@@ -1,0 +1,7 @@
+services:
+  pdfbot:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      TOKEN: PASTE_TOKEN_HERE
