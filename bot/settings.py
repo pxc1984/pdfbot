@@ -11,24 +11,21 @@ class Settings(BaseSettings):
     )
 
     token: str = Field(alias="TOKEN")
-    database_url: str | None = Field(default=None, alias="DATABASE_URL")
-    pg_host: str = Field(default="db", alias="POSTGRES_HOST")
-    pg_port: int = Field(default=5432, alias="POSTGRES_PORT")
-    pg_db: str = Field(default="pdfbot", alias="POSTGRES_DB")
-    pg_user: str = Field(default="pdfbot", alias="POSTGRES_USER")
-    pg_password: str = Field(default="pdfbot", alias="POSTGRES_PASSWORD")
+    redis_url: str | None = Field(default=None, alias="REDIS_URL")
+    redis_host: str = Field(default="redis", alias="REDIS_HOST")
+    redis_port: int = Field(default=6379, alias="REDIS_PORT")
+    redis_db: int = Field(default=0, alias="REDIS_DB")
+    redis_password: str | None = Field(default=None, alias="REDIS_PASSWORD")
     webhook_url: str | None = Field(default=None, alias="WEBHOOK_URL")
     webhook_host: str = Field(default="0.0.0.0", alias="WEBHOOK_HOST")
     webhook_port: int = Field(default=8080, alias="WEBHOOK_PORT")
 
     @property
-    def resolved_database_url(self) -> str:
-        if self.database_url:
-            return self.database_url
-        return (
-            f"postgresql://{self.pg_user}:{self.pg_password}"
-            f"@{self.pg_host}:{self.pg_port}/{self.pg_db}"
-        )
+    def resolved_redis_url(self) -> str:
+        if self.redis_url:
+            return self.redis_url
+        auth = f":{self.redis_password}@" if self.redis_password else ""
+        return f"redis://{auth}{self.redis_host}:{self.redis_port}/{self.redis_db}"
 
 
 @lru_cache

@@ -11,7 +11,7 @@ dependencies = [
     "pillow",
     "pydantic",
     "pydantic-settings",
-    "psycopg[binary]",
+    "redis",
 ]
 
 [tool.setuptools.packages.find]

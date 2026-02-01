@@ -6,19 +6,24 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - redis
     volumes:
       - ./media:/tmp/media
       - ./pdf:/var/pdf
 
-  db:
-    image: postgres:18-alpine
+  redis:
+    image: redis:7-alpine
     restart: unless-stopped
     env_file:
       - .env
+    command: >
+      sh -c 'if [ -n "$REDIS_PASSWORD" ]; then
+        exec redis-server --requirepass "$REDIS_PASSWORD";
+      else
+        exec redis-server;
+      fi'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./schema:/docker-entrypoint-initdb.d:ro
+      - redis_data:/data
 
 volumes:
-  postgres_data:
+  redis_data:
