@@ -1,5 +1,6 @@
 import datetime
 import io
+import re
 from pathlib import Path
 
 from aiogram import Router, Bot
@@ -72,7 +73,9 @@ async def make_pdf(message: Message, bot: Bot) -> None:
     images = [PILImage.open(path).convert("RGB") for path in photo_paths]
 
     # Генерация PDF
-    pdf_name = f"{message.from_user.id}_{datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
+    raw_name = message.from_user.full_name or str(message.from_user.id)
+    safe_name = re.sub(r"[^A-Za-zА-Яа-я0-9 _-]+", "_", raw_name).strip() or str(message.from_user.id)
+    pdf_name = f"{safe_name}_{datetime.datetime.utcnow().date().isoformat()}.pdf"
     pdf_path = PDF_DIR / pdf_name
     images[0].save(
         pdf_path,
