@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     pg_db: str = Field(default="pdfbot", alias="POSTGRES_DB")
     pg_user: str = Field(default="pdfbot", alias="POSTGRES_USER")
     pg_password: str = Field(default="pdfbot", alias="POSTGRES_PASSWORD")
+    webhook_url: str | None = Field(default=None, alias="WEBHOOK_URL")
+    webhook_host: str = Field(default="0.0.0.0", alias="WEBHOOK_HOST")
+    webhook_port: int = Field(default=8080, alias="WEBHOOK_PORT")
 
     @property
     def resolved_database_url(self) -> str:
