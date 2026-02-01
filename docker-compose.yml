@@ -7,9 +7,12 @@ services:
       - .env
     depends_on:
       - db
+    volumes:
+      - ./media:/tmp/media
+      - ./pdf:/var/pdf
 
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     env_file:
       - .env

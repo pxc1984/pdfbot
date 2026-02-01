@@ -1,16 +1,21 @@
 import datetime
 import io
+from pathlib import Path
 
 from aiogram import Router, Bot
 from aiogram.filters import Command
-from aiogram.types import Message, BufferedInputFile
+from aiogram.types import Message, FSInputFile
 from aiogram.enums import ParseMode
 
 from PIL import Image as PILImage
 
-from bot.db import add_photo, list_photo_bytes, delete_photos, count_photos
+from bot.db import add_photo, list_photo_paths, delete_photos, count_photos
 
 convert_router = Router()
+MEDIA_DIR = Path("/tmp/media")
+PDF_DIR = Path("/var/pdf")
+MEDIA_DIR.mkdir(parents=True, exist_ok=True)
+PDF_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @convert_router.message(lambda msg: msg.document is not None or msg.photo is not None)
@@ -34,12 +39,16 @@ async def convert(message: Message, bot: Bot) -> None:
         await message.answer("не смог прочитать картинку, попробуй другой файл")
         return
 
+    suffix = Path(file.file_path).suffix or ".img"
+    image_path = MEDIA_DIR / f"{message.from_user.id}_{message.message_id}{suffix}"
+    image_path.write_bytes(image_bytes)
+
     # Сохраняем картинку для пользователя
     user_id = message.from_user.id
     total = add_photo(
         chat_id=user_id,
         message_id=message.message_id,
-        image_bytes=image_bytes,
+        image_path=str(image_path),
     )
 
     await message.answer(
@@ -55,28 +64,27 @@ async def convert(message: Message, bot: Bot) -> None:
 @convert_router.message(Command("makepdf"))
 async def make_pdf(message: Message, bot: Bot) -> None:
     user_id = message.from_user.id
-    photos = list_photo_bytes(user_id)
-    if not photos:
+    photo_paths = list_photo_paths(user_id)
+    if not photo_paths:
         await message.answer("ты мне еще ни одной фотки не скинул")
         return
 
-    images = [PILImage.open(io.BytesIO(photo)).convert("RGB") for photo in photos]
+    images = [PILImage.open(path).convert("RGB") for path in photo_paths]
 
     # Генерация PDF
-    pdf_buffer = io.BytesIO()
+    pdf_name = f"{message.from_user.id}_{datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.pdf"
+    pdf_path = PDF_DIR / pdf_name
     images[0].save(
-        pdf_buffer,
+        pdf_path,
         format="PDF",
         save_all=True,
         append_images=images[1:],
     )
-    pdf_buffer.seek(0)
+    for image in images:
+        image.close()
 
     # Отправляем пользователю
-    pdf_file = BufferedInputFile(
-        pdf_buffer.read(),
-        filename=f"{message.from_user.full_name} {datetime.datetime.utcnow()}.pdf",
-    )
+    pdf_file = FSInputFile(path=pdf_path, filename=pdf_name)
     await message.answer_document(pdf_file, caption="вот твой пдф")
 
     # Чистим очередь
@@ -88,9 +96,7 @@ async def cancel_pdf(message: Message, bot: Bot) -> None:
     user_id = message.from_user.id
     count = count_photos(user_id)
     if count == 0:
-        await message.answer(
-            "ты мне еще ни одной фотки не скинул, чего я должен чистить то"
-        )
+        await message.answer("ты мне еще ни одной фотки не скинул, чего я должен чистить то")
         return
 
     delete_photos(user_id)

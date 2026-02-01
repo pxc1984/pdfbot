@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS photos (
     id SERIAL PRIMARY KEY,
     chat_id BIGINT NOT NULL,
     message_id INTEGER NOT NULL,
-    image_bytes BYTEA NOT NULL,
+    image_path TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
