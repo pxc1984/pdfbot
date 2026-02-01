@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import os
-
 import handlers
 
 from aiogram import Bot, Dispatcher
@@ -9,9 +7,11 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
 from db.backend import init_db
+from settings import get_settings
 
-TOKEN = os.getenv("TOKEN")
-if TOKEN is None:
+settings = get_settings()
+
+if not settings.token:
     raise Exception("Null token provided")
 
 
@@ -23,7 +23,9 @@ async def main() -> None:
         handlers.convert_router,
     )
 
-    bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(
+        token=settings.token, default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    )
 
     await dp.start_polling(bot)
 

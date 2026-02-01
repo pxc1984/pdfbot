@@ -3,5 +3,18 @@ services:
     restart: unless-stopped
     build:
       context: .
-    environment:
-      TOKEN: PASTE_TOKEN_HERE
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

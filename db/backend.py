@@ -1,13 +1,11 @@
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from db.base import Base  # Изменено: импортируем Base из db.base
+from db.base import Base
 from db.models.user import User
+from settings import get_settings
 
-DATABASE_URL = (
-    os.getenv("DATABASE_URL") if os.getenv("DATABASE_URL") else "sqlite:///bot.db"
-)
-engine = create_engine(DATABASE_URL, echo=False)
+settings = get_settings()
+engine = create_engine(settings.resolved_database_url, echo=False)
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
