@@ -1,13 +1,12 @@
 import asyncio
 import logging
-import handlers
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from db.backend import init_db
-from settings import get_settings
+import bot.handlers as handlers
+from bot.settings import get_settings
 
 settings = get_settings()
 
@@ -32,5 +31,4 @@ async def main() -> None:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    init_db()
     asyncio.run(main())

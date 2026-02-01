@@ -7,4 +7,4 @@ COPY . .
 RUN pip install --no-cache-dir uv
 RUN uv pip install --system --no-cache -e .
 
-CMD [ "python", "./main.py" ]
+CMD [ "python", "-m", "bot.main" ]
