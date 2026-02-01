@@ -22,7 +22,9 @@ PDF_DIR.mkdir(parents=True, exist_ok=True)
 @convert_router.message(lambda msg: msg.document is not None or msg.photo is not None)
 async def convert(message: Message, bot: Bot) -> None:
     if not message.document and not message.photo:
-        await message.answer("кидай фотки (документами или обычными), я соберу их в пдфку")
+        await message.answer(
+            "кидай фотки (документами или обычными), я соберу их в пдфку"
+        )
         return
 
     # Скачиваем файл в память
@@ -74,7 +76,9 @@ async def make_pdf(message: Message, bot: Bot) -> None:
 
     # Генерация PDF
     raw_name = message.from_user.full_name or str(message.from_user.id)
-    safe_name = re.sub(r"[^A-Za-zА-Яа-я0-9 _-]+", "_", raw_name).strip() or str(message.from_user.id)
+    safe_name = re.sub(r"[^A-Za-zА-Яа-я0-9 _-]+", "_", raw_name).strip() or str(
+        message.from_user.id
+    )
     pdf_name = f"{safe_name}_{datetime.datetime.utcnow().date().isoformat()}.pdf"
     pdf_path = PDF_DIR / pdf_name
     images[0].save(
@@ -99,7 +103,9 @@ async def cancel_pdf(message: Message, bot: Bot) -> None:
     user_id = message.from_user.id
     count = count_photos(user_id)
     if count == 0:
-        await message.answer("ты мне еще ни одной фотки не скинул, чего я должен чистить то")
+        await message.answer(
+            "ты мне еще ни одной фотки не скинул, чего я должен чистить то"
+        )
         return
 
     delete_photos(user_id)

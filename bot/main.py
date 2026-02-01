@@ -35,14 +35,14 @@ async def main() -> None:
         await bot.set_webhook(settings.webhook_url)
 
         app = web.Application()
-        SimpleRequestHandler(dispatcher=dp, bot=bot).register(
-            app, path=webhook_path
-        )
+        SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=webhook_path)
         setup_application(app, dp, bot=bot)
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, host=settings.webhook_host, port=settings.webhook_port)
+        site = web.TCPSite(
+            runner, host=settings.webhook_host, port=settings.webhook_port
+        )
         await site.start()
 
         try:

@@ -6,7 +6,10 @@ import redis
 
 from bot.settings import get_settings
 
+from functools import lru_cache
 
+
+@lru_cache
 def get_redis() -> redis.Redis:
     settings = get_settings()
     return redis.Redis.from_url(settings.resolved_redis_url, decode_responses=True)
