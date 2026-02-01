@@ -14,6 +14,7 @@ TOKEN = os.getenv("TOKEN")
 if TOKEN is None:
     raise Exception("Null token provided")
 
+
 async def main() -> None:
     dp = Dispatcher()
 
@@ -25,6 +26,7 @@ async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

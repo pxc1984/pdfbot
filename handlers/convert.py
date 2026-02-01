@@ -1,7 +1,7 @@
 import datetime
 
 from aiogram import Router, Bot
-from aiogram.filters import invert_f, Command
+from aiogram.filters import Command
 from aiogram.types import Message, BufferedInputFile
 from aiogram.enums import ParseMode
 
@@ -38,7 +38,7 @@ async def convert(message: Message, bot: Bot) -> None:
             "отправь команду /makepdf чтобы собрать пдф\n"
             "отправь команду /cancel чтобы начать сборку с начала"
         ),
-        parse_mode=ParseMode.HTML
+        parse_mode=ParseMode.HTML,
     )
 
 
@@ -65,22 +65,23 @@ async def make_pdf(message: Message, bot: Bot) -> None:
     # Отправляем пользователю
     pdf_file = BufferedInputFile(
         pdf_buffer.read(),
-        filename=f"{message.from_user.full_name} {datetime.datetime.utcnow()}.pdf"
+        filename=f"{message.from_user.full_name} {datetime.datetime.utcnow()}.pdf",
     )
     await message.answer_document(pdf_file, caption="вот твой пдф")
 
     # Чистим очередь
     user_photos[user_id].clear()
 
+
 @convert_router.message(Command("cancel"))
 async def cancel_pdf(message: Message, bot: Bot) -> None:
     global user_photos
     user_id = message.from_user.id
     if user_id not in user_photos or not user_photos[user_id]:
-        await message.answer("ты мне еще ни одной фотки не скинул, чего я должен чистить то")
+        await message.answer(
+            "ты мне еще ни одной фотки не скинул, чего я должен чистить то"
+        )
         return
 
     user_photos[user_id].clear()
     await message.answer("все, забыл")
-
-
