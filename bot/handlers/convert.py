@@ -13,14 +13,19 @@ from bot.db import add_photo, list_photo_bytes, delete_photos, count_photos
 convert_router = Router()
 
 
-@convert_router.message(lambda msg: msg.document is not None)
+@convert_router.message(lambda msg: msg.document is not None or msg.photo is not None)
 async def convert(message: Message, bot: Bot) -> None:
-    if not message.document:
-        await message.answer("кидай фотки (документами), я соберу их в пдфку")
+    if not message.document and not message.photo:
+        await message.answer("кидай фотки (документами или обычными), я соберу их в пдфку")
         return
 
     # Скачиваем файл в память
-    file = await bot.get_file(message.document.file_id)
+    if message.photo:
+        file_id = message.photo[-1].file_id
+    else:
+        file_id = message.document.file_id
+
+    file = await bot.get_file(file_id)
     file_bytes = await bot.download_file(file.file_path)
     image_bytes = file_bytes.read()
     try:
